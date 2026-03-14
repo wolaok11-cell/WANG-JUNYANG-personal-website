@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wang Junyang | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,900;1,900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #000000; 
+            color: #ffffff; 
+            scroll-behavior: smooth; 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Montserrat', sans-serif;
+        }
+        ::selection { background-color: #dbff00; color: #000; }
+        
+        /* 跑马灯动画 */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 25s linear infinite;
+        }
+
+        /* 论文扫描线动画 (HUD全息效果) */
+        @keyframes scan {
+            0%, 100% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .animate-scan {
+            animation: scan 3s linear infinite;
+        }
+
+        /* 卡片悬停反色过渡 */
+        .lando-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .lando-card:hover { background-color: #dbff00; color: #000000 !important; }
+        .lando-card:hover * { color: #000000 !important; }
+        .lando-card:hover .accent-icon { color: #000000 !important; }
+
+        /* 发光边框特效 */
+        .glow-border { box-shadow: 0 0 20px rgba(219, 255, 0, 0.1); }
+        .glow-border:hover { box-shadow: 0 0 40px rgba(219, 255, 0, 0.3); }
+
+        /* ★ 方案 A：手风琴画廊核心动画 */
+        .accordion-item {
+            flex: 1;
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .accordion-item:hover { 
+            flex: 7; 
+        }
+        /* 隐藏/显示文字的旋转逻辑 */
+        .accordion-label {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            transition: all 0.5s ease;
+        }
+        .accordion-item:hover .accordion-label {
+            writing-mode: horizontal-tb;
+            transform: rotate(0deg);
+        }
+
+        /* 鼠标探照灯画板过渡 */
+        #hero-canvas { transition: opacity 0.6s ease-in-out; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="fixed top-0 w-full z-50 bg-[#000000]/80 backdrop-blur-xl border-b border-white/10">
+        <div class="max-w-[1400px] mx-auto px-6 py-5 flex justify-between items-center">
+            <span class="text-white font-display font-black italic tracking-widest text-xl uppercase">WANG<span class="text-[#dbff00]">.</span></span>
+            <div class="flex items-center space-x-6 text-xs md:text-sm font-bold tracking-wider uppercase">
+                <a href="#vision" class="hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navVision">Vision</a>
+                <a href="#research" class="hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navResearch">Research</a>
+                <a href="#gallery" class="hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navGallery">Gallery</a>
+                <button id="lang-toggle" class="px-3 py-1 md:px-4 md:py-2 bg-transparent border-2 border-[#dbff00] text-[#dbff00] font-black italic hover:bg-[#dbff00] hover:text-black transition-all">
+                    EN / ZH
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="relative w-full h-screen bg-[#000000] flex items-center overflow-hidden">
+        
+        <div id="hero-container" class="absolute top-0 right-0 w-full md:w-[70%] h-full z-0 cursor-none">
+            <img id="bg-img" src="./virtual.jpg" class="absolute inset-0 w-full h-full object-cover z-0" alt="Background Persona">
+            <canvas id="hero-canvas" class="absolute inset-0 w-full h-full z-10"></canvas>
+            <div class="absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/80 md:via-[#000000]/30 to-transparent z-20 pointer-events-none"></div>
+            <div id="loader" class="absolute inset-0 flex items-center justify-center bg-[#000000] z-30 text-[#dbff00] font-mono text-sm tracking-widest">
+                SYS_LOADING...
+            </div>
+        </div>
+
+        <div class="relative z-30 w-full max-w-[1400px] mx-auto px-6 pointer-events-none mt-20">
+            <h1 class="font-display font-black italic text-[60px] md:text-[140px] lg:text-[180px] leading-[0.85] tracking-tighter text-white uppercase drop-shadow-2xl">
+                WANG<br>
+                <span class="text-[#dbff00]">JUNYANG</span>
+            </h1>
+            <p class="mt-8 md:mt-12 text-sm md:text-2xl font-medium text-gray-300 max-w-xl border-l-4 border-[#dbff00] pl-6 tracking-wide" data-i18n="heroSub">
+                Focusing on next-generation energy storage, high-entropy alloys, and interfacial engineering.
+            </p>
+        </div>
+
+        <div class="absolute bottom-10 left-6 z-30 flex items-center space-x-4 animate-bounce">
+            <div class="w-10 h-10 rounded-full border-2 border-[#dbff00] flex items-center justify-center text-[#dbff00]">
+                <i class="fa-solid fa-arrow-down"></i>
+            </div>
+            <span class="font-display font-bold uppercase tracking-widest text-xs text-[#dbff00]" data-i18n="heroScroll">Scroll</span>
+        </div>
+    </header>
+
+    <div class="bg-[#dbff00] text-black overflow-hidden py-4 border-y-4 border-black transform -rotate-1 scale-105 my-10 relative z-40">
+        <div class="animate-marquee font-display font-black italic text-3xl uppercase tracking-widest">
+            MATERIALS SCIENTIST // RESEARCHER // HIGH-ENTROPY ALLOYS // ZINC-ION BATTERIES // BTC HOLDER // DATA DRIVEN // 
+            MATERIALS SCIENTIST // RESEARCHER // HIGH-ENTROPY ALLOYS // ZINC-ION BATTERIES // BTC HOLDER // DATA DRIVEN //
+        </div>
+    </div>
+
+    <section class="py-12 bg-[#000000]">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 border-y border-white/20">
+                <div class="p-8 border-r border-b md:border-b-0 border-white/20 lando-card group cursor-pointer text-center md:text-left">
+                    <h3 class="font-display font-black text-5xl md:text-7xl mb-2 text-white">7</h3>
+                    <p class="text-[10px] md:text-xs text-[#dbff00] font-bold uppercase tracking-widest">SCI / EI Papers</p>
+                </div>
+                <div class="p-8 border-r md:border-b-0 border-b border-white/20 lando-card group cursor-pointer text-center md:text-left">
+                    <h3 class="font-display font-black text-5xl md:text-7xl mb-2 text-white">5<span class="text-3xl text-[#dbff00] group-hover:text-black">+</span></h3>
+                    <p class="text-[10px] md:text-xs text-[#dbff00] font-bold uppercase tracking-widest" data-i18n="statPatents">Patents & Projects</p>
+                </div>
+                <div class="p-8 border-r border-white/20 lando-card group cursor-pointer text-center md:text-left">
+                    <h3 class="font-display font-black text-5xl md:text-7xl mb-2 text-white">10<span class="text-3xl text-[#dbff00] group-hover:text-black">+</span></h3>
+                    <p class="text-[10px] md:text-xs text-[#dbff00] font-bold uppercase tracking-widest" data-i18n="statAwards">Academic Awards</p>
+                </div>
+                <div class="p-8 lando-card group cursor-pointer text-center md:text-left">
+                    <h3 class="font-display font-black text-5xl md:text-7xl mb-2 text-white">1<span class="text-3xl">st</span></h3>
+                    <p class="text-[10px] md:text-xs text-[#dbff00] font-bold uppercase tracking-widest" data-i18n="statAuthor">Author EI Journal</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="vision" class="py-24 bg-[#050505]">
+        <div class="max-w-[1400px] mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+            <div>
+                <h2 class="font-display font-black italic text-5xl md:text-7xl text-white mb-6 uppercase tracking-tighter">
+                    <span class="text-[#dbff00]">/</span> <span data-i18n="philTitle">Philosophy</span>
+                </h2>
+                <h3 class="text-2xl font-bold text-[#dbff00] mb-6 uppercase tracking-widest" data-i18n="philH3">The Intersection of Atoms & Data</h3>
+                <div class="text-gray-300 leading-relaxed space-y-6 text-lg font-medium">
+                    <p data-i18n="philP1">
+                        传统的材料科学往往依赖漫长的“试错法”，但我坚信未来的材料突破必然是决定论式的。从沈阳航空航天大学到上海理工大学，我的研究主线始终是：用算法重塑物理世界。
+                    </p>
+                    <p data-i18n="philP2">
+                        通过将 Python 数据分析、ANSYS 多物理场仿真与严谨的微观表征技术（SEM/GMS）相结合，我致力于在原子尺度上寻找高熵合金的最优解，在宏观尺度上攻克水系锌电池的枝晶生长瓶颈。数据驱动不仅是我的工具，更是我的科研信仰。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="relative w-full aspect-square border-2 border-[#dbff00]/30 p-8 glow-border transition-all overflow-hidden group rounded-none bg-black">
+                
+                <div class="absolute inset-0 bg-[url('./5.jpg')] bg-cover bg-top filter grayscale contrast-150 brightness-50 opacity-40 mix-blend-luminosity transition-all duration-700 group-hover:opacity-70 group-hover:brightness-90 group-hover:scale-105 z-0"></div>
+                
+                <div class="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/70 to-transparent z-10"></div>
+
+                <div class="absolute inset-x-0 h-[2px] bg-[#dbff00] shadow-[0_0_15px_#dbff00,0_0_30px_#dbff00] z-20 animate-scan"></div>
+
+                <div class="relative z-30 h-full flex flex-col items-center justify-end text-center pb-6 pointer-events-none">
+                    <i class="fa-solid fa-file-waveform text-[#dbff00] text-3xl mb-4 opacity-80 group-hover:opacity-100 transition-opacity"></i>
+                    
+                    <h4 class="font-display font-black text-xl text-white uppercase tracking-widest mb-1 drop-shadow-md" data-i18n="hudTitle">
+                        FeCrNiAl Multi-principal Alloy
+                    </h4>
+                    <h4 class="font-display font-black text-sm text-[#dbff00] uppercase tracking-widest mb-5 drop-shadow-md leading-tight" data-i18n="hudJournal">
+                        Chinese Journal of Materials Research
+                    </h4>
+                    
+                    <div class="w-16 h-[2px] bg-[#dbff00] mb-5"></div>
+
+                    <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px] md:text-xs bg-black/50 px-3 py-1 border border-white/10" data-i18n="hudTag">
+                        EI Indexed / First Author
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="research" class="py-24 max-w-[1400px] mx-auto px-6 border-t border-white/20">
+        <h2 class="font-display font-black italic text-5xl md:text-7xl text-white mb-16 uppercase tracking-tighter flex items-center">
+            <span class="text-[#dbff00] mr-6">/</span> <span data-i18n="secResearch">Research Focus</span>
+        </h2>
+        
+        <div class="grid md:grid-cols-3 gap-0 border border-white/20 bg-[#0a0a0a]">
+            <div class="p-12 border-b md:border-b-0 md:border-r border-white/20 lando-card group cursor-pointer relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 text-9xl text-white/5 font-display font-black italic group-hover:text-black/10 transition-colors">01</div>
+                <i class="fa-solid fa-battery-full text-[#dbff00] accent-icon text-3xl mb-8 block"></i>
+                <h3 class="font-display font-black text-2xl text-white uppercase mb-4 tracking-wide" data-i18n="r1Title">Zinc-Ion Batteries</h3>
+                <p class="text-gray-400 font-medium leading-relaxed" data-i18n="r1Desc">
+                    Focusing on dendrite growth in aqueous zinc batteries. Developed ANF/PVA/PAM composite hydrogel electrolytes to optimize wide-temperature operation and cycle life.
+                </p>
+            </div>
+            <div class="p-12 border-b md:border-b-0 md:border-r border-white/20 lando-card group cursor-pointer relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 text-9xl text-white/5 font-display font-black italic group-hover:text-black/10 transition-colors">02</div>
+                <i class="fa-solid fa-layer-group text-[#dbff00] accent-icon text-3xl mb-8 block"></i>
+                <h3 class="font-display font-black text-2xl text-white uppercase mb-4 tracking-wide" data-i18n="r2Title">Interfacial Engineering</h3>
+                <p class="text-gray-400 font-medium leading-relaxed" data-i18n="r2Desc">
+                    Employed In/Sn/Bi metals for grain-boundary filling. Achieved Cu-Zn interfacial alloying between phosphor bronze and zinc foil via diffusion-couple annealing.
+                </p>
+            </div>
+            <div class="p-12 lando-card group cursor-pointer relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 text-9xl text-white/5 font-display font-black italic group-hover:text-black/10 transition-colors">03</div>
+                <i class="fa-solid fa-atom text-[#dbff00] accent-icon text-3xl mb-8 block"></i>
+                <h3 class="font-display font-black text-2xl text-white uppercase mb-4 tracking-wide" data-i18n="r3Title">High-Entropy Alloys</h3>
+                <p class="text-gray-400 font-medium leading-relaxed" data-i18n="r3Desc">
+                    Investigated mutual phase transformation and grain refinement in FeCrNiAl alloys. Explored mechanisms for synchronously enhancing strength and ductility.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-[#0a0a0a] border-y border-white/20">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <h2 class="font-display font-black italic text-5xl md:text-7xl text-white mb-16 uppercase tracking-tighter flex items-center">
+                <span class="text-[#dbff00] mr-6">/</span> <span data-i18n="pubTitle">Publications & Projects</span>
+            </h2>
+            
+            <div class="space-y-6">
+                <div class="border border-[#dbff00]/30 bg-[#000] p-8 flex flex-col md:flex-row justify-between items-start md:items-center hover:border-[#dbff00] transition-colors">
+                    <div class="md:w-3/4">
+                        <span class="inline-block px-3 py-1 bg-[#dbff00] text-black font-bold text-xs uppercase tracking-widest mb-4" data-i18n="pub1Tag">EI First Author</span>
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-2 leading-snug" data-i18n="pub1Name">
+                            双形态异质结构协同提升 FeCrNiAl 多主元合金强塑性
+                        </h3>
+                        <p class="text-gray-500 font-medium" data-i18n="pub1Journal">Journal of Materials Research (EI)</p>
+                    </div>
+                </div>
+
+                <div class="border border-white/20 bg-[#050505] p-8 flex flex-col md:flex-row justify-between items-start md:items-center hover:border-[#dbff00] transition-colors">
+                    <div class="md:w-3/4">
+                        <span class="inline-block px-3 py-1 bg-white/10 text-white font-bold text-xs uppercase tracking-widest mb-4" data-i18n="pub2Tag">SCI / Core</span>
+                        <h3 class="text-lg md:text-xl font-bold text-white mb-2 leading-snug" data-i18n="pub2Name">
+                            Enhancing mechanical properties of high Cr dual phase FeCrNi medium-entropyalloy through mutual phase transformation and grain refinement
+                        </h3>
+                        <p class="text-gray-500 font-medium" data-i18n="pub2Role">Co-Author Contribution</p>
+                    </div>
+                </div>
+
+                <div class="border border-white/20 bg-[#050505] p-8 flex flex-col md:flex-row justify-between items-start md:items-center hover:border-[#dbff00] transition-colors">
+                    <div class="md:w-3/4">
+                        <span class="inline-block px-3 py-1 bg-[#dbff00]/20 text-[#dbff00] font-bold text-xs uppercase tracking-widest mb-4" data-i18n="pub3Tag">National 3rd Prize</span>
+                        <h3 class="text-lg md:text-xl font-bold text-white mb-2 leading-snug" data-i18n="pub3Name">
+                            第十四届全国大学生物理竞赛 (作品赛) - 上游流现象建模与表面张力研究
+                        </h3>
+                        <p class="text-gray-500 font-medium" data-i18n="pub3Role">Core Member | Origin & MATLAB Data Simulation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="experience" class="py-24 bg-[#000000]">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <h2 class="font-display font-black italic text-5xl md:text-7xl text-white mb-16 uppercase tracking-tighter flex items-center">
+                <span class="text-[#dbff00] mr-6">/</span> <span data-i18n="secExp">Experience</span>
+            </h2>
+            
+            <div class="flex flex-col md:flex-row border border-white/20 group hover:border-[#dbff00] transition-colors mb-8">
+                <div class="md:w-1/3 bg-[#0a0a0a] p-10 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/20 group-hover:bg-[#dbff00] transition-colors">
+                    <h4 class="font-display font-black text-4xl text-[#dbff00] group-hover:text-black uppercase">2021-2024</h4>
+                    <p class="text-white group-hover:text-black font-bold uppercase tracking-widest mt-2">Jushang Technology</p>
+                </div>
+                <div class="md:w-2/3 p-10 bg-[#050505]">
+                    <h3 class="font-display font-black text-2xl text-white uppercase tracking-wide mb-4" data-i18n="e1Title">IP & Patent Management Trainee</h3>
+                    <p class="text-gray-400 font-medium leading-relaxed" data-i18n="e1Desc">
+                        Led the intellectual property processing of technical solutions. Extracted innovative features, drafted technical disclosure documents, and cooperated in patent filing.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row border border-white/20 group hover:border-[#dbff00] transition-colors">
+                <div class="md:w-1/3 bg-[#0a0a0a] p-10 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/20 group-hover:bg-[#dbff00] transition-colors">
+                    <h4 class="font-display font-black text-4xl text-[#dbff00] group-hover:text-black uppercase">Intern</h4>
+                    <p class="text-white group-hover:text-black font-bold uppercase tracking-widest mt-2">FAW Group</p>
+                </div>
+                <div class="md:w-2/3 p-10 bg-[#050505]">
+                    <h3 class="font-display font-black text-2xl text-white uppercase tracking-wide mb-4" data-i18n="e2Title">Process Engineering Intern</h3>
+                    <p class="text-gray-400 font-medium leading-relaxed" data-i18n="e2Desc">
+                        Deepened understanding of the "Material Properties - Process Parameters - Quality Stability" logical chain in industrial manufacturing. Implemented 5S methodology and lean production standards.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="py-24 bg-[#000000] overflow-hidden border-t border-white/20">
+        <div class="max-w-[1400px] mx-auto px-6 mb-12 flex justify-between items-end">
+            <h2 class="font-display font-black italic text-5xl md:text-7xl text-white uppercase tracking-tighter">
+                <span class="text-[#dbff00] mr-6">/</span> <span data-i18n="lifeTitle">Beyond The Lab</span>
+            </h2>
+            <p class="hidden md:block text-[#dbff00] font-black italic animate-pulse uppercase tracking-widest text-xs" data-i18n="hoverExpand">Hover to Expand</p>
+        </div>
+
+        <div class="flex h-[500px] md:h-[700px] w-full border-y border-white/20 bg-[#050505]">
+            <div class="accordion-item group">
+                <img src="./2.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700" alt="Wakeboarding">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                <div class="absolute bottom-10 left-0 right-0 px-6 flex flex-col items-center md:items-start transition-all duration-500">
+                    <div class="accordion-label inline-block bg-[#dbff00] text-black font-display font-black italic px-4 py-2 uppercase tracking-widest text-sm md:text-lg mb-4">WAKEBOARDING</div>
+                    <span class="font-display font-black text-white/20 text-6xl group-hover:text-[#dbff00] transition-colors uppercase italic">01</span>
+                </div>
+            </div>
+
+            <div class="accordion-item group">
+                <img src="./1.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700" alt="Rooftop Pool">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                <div class="absolute bottom-10 left-0 right-0 px-6 flex flex-col items-center md:items-start transition-all duration-500">
+                    <div class="accordion-label inline-block bg-[#dbff00] text-black font-display font-black italic px-4 py-2 uppercase tracking-widest text-sm md:text-lg mb-4">ROOFTOP POOL</div>
+                    <span class="font-display font-black text-white/20 text-6xl group-hover:text-[#dbff00] transition-colors uppercase italic">02</span>
+                </div>
+            </div>
+
+            <div class="accordion-item group">
+                <img src="./4.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700" alt="Night Ride">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                <div class="absolute bottom-10 left-0 right-0 px-6 flex flex-col items-center md:items-start transition-all duration-500">
+                    <div class="accordion-label inline-block bg-[#dbff00] text-black font-display font-black italic px-4 py-2 uppercase tracking-widest text-sm md:text-lg mb-4">NIGHT RIDE</div>
+                    <span class="font-display font-black text-white/20 text-6xl group-hover:text-[#dbff00] transition-colors uppercase italic">03</span>
+                </div>
+            </div>
+
+            <div class="accordion-item group border-r-0">
+                <img src="./3.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700" alt="The Focus">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                <div class="absolute bottom-10 left-0 right-0 px-6 flex flex-col items-center md:items-start transition-all duration-500">
+                    <div class="accordion-label inline-block bg-[#dbff00] text-black font-display font-black italic px-4 py-2 uppercase tracking-widest text-sm md:text-lg mb-4">THE FOCUS</div>
+                    <span class="font-display font-black text-white/20 text-6xl group-hover:text-[#dbff00] transition-colors uppercase italic">04</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-gradient-to-b from-[#000000] to-[#0a0a0a] border-y border-white/10">
+        <div class="max-w-[1400px] mx-auto px-6 text-center">
+            <i class="fa-brands fa-bitcoin text-[#dbff00] text-7xl mb-8 animate-pulse"></i>
+            <h2 class="font-display font-black italic text-4xl md:text-6xl text-white mb-6 uppercase tracking-tighter" data-i18n="cryptoTitle">
+                Beyond the Lab: <span class="text-[#dbff00]">Decentralized Mindset</span>
+            </h2>
+            <p class="text-gray-400 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed" data-i18n="cryptoDesc">
+                如同高熵合金打破了传统冶金的混合法则，Web3 与去中心化网络正在打破传统金融的物理定律。作为一名材料学者，我重仓 BTC 不仅是出于资产配置，更是出于对不可篡改的数学共识的敬畏——这与我每天在实验室里追求的热力学绝对定律如出一辙。
+            </p>
+        </div>
+    </section>
+
+    <footer id="about" class="py-24 px-6 max-w-[1400px] mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div>
+            <h2 class="font-display font-black italic text-5xl md:text-7xl text-white mb-10 uppercase tracking-tighter">
+                <span class="text-[#dbff00]">/</span> <span data-i18n="secAbout">About Me</span>
+            </h2>
+            <p class="text-gray-300 leading-relaxed text-lg font-medium" data-i18n="a1">
+                我是王君阳，目前作为硕士研究生就读于<strong class="text-[#dbff00]">上海理工大学</strong>，本科毕业于沈阳航空航天大学。我专注于材料成型控制、计算材料学以及前沿非晶态物理领域。
+            </p>
+            <div class="flex items-center space-x-6 pt-4 mt-6 border-t border-white/20">
+                <a href="mailto:383424253@qq.com" class="text-gray-400 hover:text-[#dbff00] transition-colors"><i class="fa-solid fa-envelope mr-3 text-[#dbff00]"></i>383424253@qq.com</a>
+                <span class="text-gray-400"><i class="fa-solid fa-location-dot mr-3 text-[#dbff00]"></i>Shanghai, China</span>
+            </div>
+        </div>
+        
+        <div class="flex flex-wrap gap-4 content-start">
+            <span class="px-5 py-3 border border-white/20 text-white font-bold uppercase tracking-wider text-sm">Python</span>
+            <span class="px-5 py-3 border border-white/20 text-white font-bold uppercase tracking-wider text-sm">MATLAB</span>
+            <span class="px-5 py-3 border border-[#dbff00] text-[#dbff00] font-bold uppercase tracking-wider text-sm">ANSYS</span>
+            <span class="px-5 py-3 border border-white/20 text-white font-bold uppercase tracking-wider text-sm">AutoCAD</span>
+            <span class="px-5 py-3 border border-white/20 text-white font-bold uppercase tracking-wider text-sm">Origin / GMS</span>
+            <span class="px-5 py-3 border border-white/20 text-white font-bold uppercase tracking-wider text-sm">DeepSeek</span>
+        </div>
+    </footer>
+
+    <script>
+        // ----------------------------------------
+        // 1. 多语言翻译系统 (i18n)
+        // ----------------------------------------
+        const translations = {
+            en: {
+                navVision: "Vision", navResearch: "Research", navGallery: "Gallery",
+                heroSub: "Master's student at USST. Focusing on next-gen energy storage, high-entropy alloys, and interfacial engineering.",
+                heroScroll: "Scroll",
+                statPatents: "Patents & Projects", statAwards: "Academic Awards", statAuthor: "Author EI Journal",
+                
+                philTitle: "Philosophy",
+                philH3: "The Intersection of Atoms & Data",
+                philP1: "Traditional materials science often relies on trial-and-error, but I firmly believe the future of material breakthroughs is deterministic. From Shenyang Aerospace University to USST, my research narrative remains constant: reshaping the physical world through algorithms.",
+                philP2: "By combining Python data analysis, ANSYS multi-physics simulation, and rigorous microscopic characterization (SEM/GMS), I strive to find the optimal solution for high-entropy alloys at the atomic scale, and break through the dendrite growth bottleneck of aqueous zinc batteries at the macro scale. Data-driven is not just my tool, but my scientific faith.",
+                philTag: "Algorithm-Driven Materials Design",
+                
+                hudTitle: "FeCrNiAl Multi-principal Alloy",
+                hudJournal: "Chinese Journal of Materials Research",
+                hudTag: "EI Indexed / First Author",
+
+                secResearch: "Research Focus",
+                r1Title: "Zinc-Ion Batteries", r1Desc: "Focusing on dendrite growth in aqueous zinc batteries. Developed ANF/PVA/PAM composite hydrogel electrolytes to optimize wide-temperature operation and cycle life.",
+                r2Title: "Interfacial Engineering", r2Desc: "Employed In/Sn/Bi metals for grain-boundary filling. Achieved Cu-Zn interfacial alloying between phosphor bronze and zinc foil via diffusion-couple annealing.",
+                r3Title: "High-Entropy Alloys", r3Desc: "Investigated mutual phase transformation and grain refinement in FeCrNiAl alloys. Explored mechanisms for synchronously enhancing strength and ductility.",
+                
+                pubTitle: "Publications & Projects",
+                pub1Tag: "EI FIRST AUTHOR", pub1Name: "Synergistic Enhancement of Strength and Ductility in FeCrNiAl Multi-Principal Element Alloys via Dual-Morphology Heterostructure", pub1Journal: "Journal of Materials Research (EI)",
+                pub2Tag: "SCI / Core",
+                pub2Name: "Enhancing mechanical properties of high Cr dual phase FeCrNi medium-entropyalloy through mutual phase transformation and grain refinement",
+                pub2Role: "Co-Author Contribution",
+                pub3Tag: "National 3rd Prize", pub3Name: "14th National University Physics Competition - Upstream Flow Phenomena Modeling & Surface Tension Analysis", pub3Role: "Core Member | Origin & MATLAB Data Simulation",
+
+                secExp: "Experience",
+                e1Title: "IP & Patent Management", e1Desc: "Led the intellectual property processing of technical solutions. Extracted innovative features, drafted technical disclosure documents, and cooperated in patent filing.",
+                e2Title: "Process Engineer Intern", e2Desc: "Deepened understanding of the 'Material Properties - Process - Quality' logical chain. Implemented 5S methodology and lean production standards.",
+                
+                lifeTitle: "Beyond The Lab", hoverExpand: "Hover to Expand",
+
+                cryptoTitle: "Beyond the Lab: <span class='text-[#dbff00]'>Decentralized Mindset</span>",
+                cryptoDesc: "Just as high-entropy alloys break the mixing rules of traditional metallurgy, Web3 and decentralized networks are breaking the physics of traditional finance. As a materials scholar, my heavy position in BTC is not just an asset allocation, but an awe of immutable mathematical consensus—which is exactly the same as the absolute thermodynamic laws I pursue in the lab every day.",
+
+                secAbout: "About Me", secSkills: "Tech Stack",
+                a1: "I am Wang Junyang, currently pursuing my Master's degree at <strong class='text-[#dbff00]'>University of Shanghai for Science and Technology (USST)</strong>. I specialize in material forming, computational materials science, and amorphous physics."
+            },
+            zh: {
+                navVision: "科研愿景", navResearch: "科研领域", navGallery: "生活图集",
+                heroSub: "上海理工大学研究生。专注下一代储能材料、高熵合金与界面工程微观机理探索。",
+                heroScroll: "向下滑动",
+                statPatents: "大创与专利", statAwards: "国家及省市级奖项", statAuthor: "第一作者 EI 期刊",
+                
+                philTitle: "哲学与愿景",
+                philH3: "原子与数据的交汇点",
+                philP1: "传统的材料科学往往依赖漫长的“试错法”，但我坚信未来的材料突破必然是决定论式的。从沈阳航空航天大学到上海理工大学，我的研究主线始终是：用算法重塑物理世界。",
+                philP2: "通过将 Python 数据分析、ANSYS 多物理场仿真与严谨的微观表征技术（SEM/GMS）相结合，我致力于在原子尺度上寻找高熵合金的最优解，在宏观尺度上攻克水系锌电池的枝晶生长瓶颈。数据驱动不仅是我的工具，更是我的科研信仰。",
+                philTag: "算法驱动材料设计",
+                
+                hudTitle: "FeCrNiAl 多主元合金",
+                hudJournal: "材料研究学报 (工程索引)",
+                hudTag: "EI 核心检索 / 第一作者",
+
+                secResearch: "科研主攻领域",
+                r1Title: "水系锌离子电池", r1Desc: "攻坚水系锌电池枝晶生长副反应难题，主导研发基于 ANF/PVA/PAM 的复合水凝胶电解质，大幅优化宽温域工作能力与循环寿命。",
+                r2Title: "界面工程调控", r2Desc: "运用 In/Sn/Bi 金属进行晶界填充调控沉积动力学。通过扩散偶退火工艺实现锡青铜与锌箔的 Cu-Zn 界面合金化，构建稳定性亲锌界面。",
+                r3Title: "高熵合金机理", r3Desc: "探明双形态异质结构协同提升 FeCrNiAl 多主元合金强塑性的关键物理机制，独立完成微观组织及力学性能深度表征。",
+                
+                pubTitle: "核心发表与项目",
+                pub1Tag: "EI 第一作者", pub1Name: "双形态异质结构协同提升 FeCrNiAl 多主元合金强塑性", pub1Journal: "材料研究学报 (EI)",
+                pub2Tag: "SCI / Core", 
+                pub2Name: "Enhancing mechanical properties of high Cr dual phase FeCrNi medium-entropyalloy through mutual phase transformation and grain refinement",
+                pub2Role: "合作参与发表",
+                pub3Tag: "国家级三等奖", pub3Name: "第十四届全国大学生物理竞赛  - 上游流现象建模与表面张力研究", pub3Role: "核心成员 | Origin 与 MATLAB 数据仿真",
+
+                secExp: "工作与实践经历",
+                e1Title: "知识产权见习经理人", e1Desc: "主导核心技术方案的专利化流程，深度提炼创新点并撰写技术交底书，全程跟进图示规划、版本迭代及国家专利局归档审查。",
+                e2Title: "精益工艺实习生", e2Desc: "深入智能制造一线，系统掌握“材料性能 - 工艺参数 - 质量稳定性”闭环工业逻辑。主导推行 5S 现场管理与目视化品控标准。",
+                
+                lifeTitle: "实验室之外的张力", hoverExpand: "悬停展开",
+
+                cryptoTitle: "实验室之外：<span class='text-[#dbff00]'>去中心化信仰</span>",
+                cryptoDesc: "如同高熵合金打破了传统冶金的混合法则，Web3 与去中心化网络正在打破传统金融的物理定律。作为一名材料学者，我重仓 BTC 不仅是出于资产配置，更是出于对不可篡改的数学共识的敬畏——这与我每天在实验室里追求的热力学绝对定律如出一辙。",
+
+                secAbout: "关于我", secSkills: "工具栈与技能",
+                a1: "我是王君阳，目前作为硕士研究生就读于<strong class='text-[#dbff00]'>上海理工大学</strong>，本科毕业于沈阳航空航天大学，硕士就读于上海理工大学。我专注于材料成型控制、计算材料学以及前沿储能材料探索。"
+            }
+        };
+
+        let currentLang = 'zh';
+        const langToggleBtn = document.getElementById('lang-toggle');
+        
+        langToggleBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerHTML = translations[currentLang][key];
+                }
+            });
+        });
+        
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            el.innerHTML = translations['zh'][el.getAttribute('data-i18n')];
+        });
+
+        // ----------------------------------------
+        // 2. 聚光灯探照跟随 + 2秒矩阵瀑布流
+        // ----------------------------------------
+        const container = document.getElementById('hero-container');
+        const canvas = document.getElementById('hero-canvas');
+        const ctx = canvas.getContext('2d');
+        const loader = document.getElementById('loader');
+        const bgImgElement = document.getElementById('bg-img'); 
+
+        const realImageSrc = './real.jpg';
+        const virtualImageSrc = './virtual.jpg';
+
+        let realImg = new Image();
+        let virtualImg = new Image();
+        let imagesLoaded = 0;
+
+        let animationFrameId;
+        let currentImage, targetImage;
+        let isTransitioning = false;
+
+        const fontSize = 18; 
+        const trailLength = 25; 
+        let columns = 0;
+        
+        let contDrops = []; 
+        let transDrops = [];
+        let transSpeeds = [];   
+        
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*アァカサタナハマヤャラワ'.split('');
+
+        let targetMouseX = 0, targetMouseY = 0;
+        let currentMouseX = 0, currentMouseY = 0;
+        let isHovering = false;
+        let hoverRadius = 0;
+        const maxHoverRadius = 250;
+
+        function initImages() {
+            realImg.src = realImageSrc;
+            virtualImg.src = virtualImageSrc;
+            
+            realImg.onload = virtualImg.onload = () => {
+                imagesLoaded++;
+                if (imagesLoaded === 2) {
+                    loader.style.display = 'none';
+                    currentImage = realImg;
+                    targetImage = realImg;
+                    bgImgElement.src = virtualImg.src;
+                    startCanvasEngine();
+                    
+                    // ★ 极快频率 2000 毫秒(2秒) 瀑布流切换
+                    setInterval(() => {
+                        if (!isTransitioning) {
+                            targetImage = (currentImage === realImg) ? virtualImg : realImg;
+                            triggerWaterfall();
+                        }
+                    }, 2000); 
+                }
+            };
+        }
+
+        function resizeCanvas() {
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            columns = Math.ceil(canvas.width / fontSize);
+            
+            contDrops = Array(columns).fill(0).map(() => Math.random() * canvas.height);
+            
+            if (!isTransitioning) {
+                transDrops = Array(columns).fill(canvas.height + 500);
+            }
+        }
+
+        container.addEventListener('mousemove', (e) => {
+            const rect = container.getBoundingClientRect();
+            targetMouseX = e.clientX - rect.left;
+            targetMouseY = e.clientY - rect.top;
+        });
+
+        container.addEventListener('mouseenter', (e) => {
+            isHovering = true;
+            const rect = container.getBoundingClientRect();
+            targetMouseX = e.clientX - rect.left;
+            targetMouseY = e.clientY - rect.top;
+            if (hoverRadius < 10) {
+                currentMouseX = targetMouseX;
+                currentMouseY = targetMouseY;
+            }
+        });
+
+        container.addEventListener('mouseleave', () => {
+            isHovering = false;
+        });
+
+        function triggerWaterfall() {
+            isTransitioning = true;
+            for (let i = 0; i < columns; i++) {
+                transDrops[i] = -Math.random() * 600 - 50; 
+                transSpeeds[i] = 4 + Math.random() * 5; 
+            }
+        }
+
+        function drawSlicedImage(img, x, y, w, h) {
+            if (h <= 0 || w <= 0) return;
+            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+            const drawW = img.width * scale;
+            const drawH = img.height * scale;
+            const offsetX = (canvas.width - drawW) / 2;
+            const offsetY = (canvas.height - drawH) / 2;
+
+            const sx = (x - offsetX) / scale;
+            const sy = (y - offsetY) / scale;
+            const sw = w / scale;
+            const sh = h / scale;
+
+            ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+        }
+
+        function renderFrame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let allDone = true;
+
+            for (let i = 0; i < columns; i++) {
+                let x = i * fontSize;
+                let dropY = transDrops[i];
+
+                if (isTransitioning) {
+                    if (dropY < canvas.height) {
+                        drawSlicedImage(currentImage, x, Math.max(0, dropY), fontSize, canvas.height - Math.max(0, dropY));
+                    }
+                    if (dropY > 0) {
+                        drawSlicedImage(targetImage, x, 0, fontSize, dropY);
+                    }
+
+                    let headRow = Math.floor(dropY / fontSize);
+                    for (let j = 0; j < trailLength; j++) {
+                        let charRow = headRow - j;
+                        if (charRow < 0) continue; 
+                        let charY = charRow * fontSize;
+                        if (charY > canvas.height + fontSize) continue; 
+
+                        let char = chars[Math.floor(Math.random() * chars.length)];
+                        let opacity = 1 - (j / trailLength); 
+
+                        ctx.font = `black ${fontSize}px monospace`;
+                        ctx.textAlign = 'center';
+
+                        if (j === 0) {
+                            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                            ctx.shadowColor = '#ffffff';
+                            ctx.shadowBlur = 10;
+                        } else {
+                            ctx.fillStyle = `rgba(219, 255, 0, ${opacity})`;
+                            ctx.shadowColor = '#dbff00';
+                            ctx.shadowBlur = 5;
+                        }
+
+                        ctx.fillText(char, x + fontSize/2, charY);
+                        ctx.shadowBlur = 0; 
+                    }
+
+                    transDrops[i] += transSpeeds[i];
+                    if (transDrops[i] - (trailLength * fontSize) < canvas.height) {
+                        allDone = false;
+                    }
+                } else {
+                    drawSlicedImage(currentImage, x, 0, fontSize, canvas.height);
+                }
+
+                let contY = contDrops[i];
+                ctx.font = `bold ${fontSize}px monospace`;
+                ctx.textAlign = 'center';
+                for(let j = 0; j < 8; j++) {
+                    let cY = contY - j * fontSize;
+                    if(cY < 0 || cY > canvas.height) continue;
+                    let op = (1 - j / 8) * 0.15;
+                    ctx.fillStyle = `rgba(219, 255, 0, ${op})`;
+                    ctx.fillText(chars[Math.floor(Math.random() * chars.length)], x + fontSize/2, cY);
+                }
+                
+                contDrops[i] += 1.5 + Math.random() * 2; 
+                if (contDrops[i] - 8 * fontSize > canvas.height) {
+                    contDrops[i] = 0;
+                }
+            }
+
+            if (isTransitioning && allDone) {
+                isTransitioning = false;
+                currentImage = targetImage;
+                bgImgElement.src = (currentImage === realImg) ? virtualImg.src : realImg.src;
+            }
+
+            currentMouseX += (targetMouseX - currentMouseX) * 0.15;
+            currentMouseY += (targetMouseY - currentMouseY) * 0.15;
+            hoverRadius += ((isHovering ? maxHoverRadius : 0) - hoverRadius) * 0.15;
+
+            if (hoverRadius > 1) {
+                ctx.globalCompositeOperation = 'destination-out';
+                let gradient = ctx.createRadialGradient(currentMouseX, currentMouseY, 0, currentMouseX, currentMouseY, hoverRadius);
+                gradient.addColorStop(0, 'rgba(0,0,0,1)');      
+                gradient.addColorStop(0.7, 'rgba(0,0,0,0.8)');  
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');      
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(currentMouseX, currentMouseY, hoverRadius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalCompositeOperation = 'source-over';
+            }
+
+            animationFrameId = requestAnimationFrame(renderFrame);
+        }
+
+        function startCanvasEngine() {
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            renderFrame();
+        }
+
+        initImages();
+    </script>
+</body>
+</html>
