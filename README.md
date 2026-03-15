@@ -24,7 +24,7 @@
 ## 🌐 访问网站
 
 本网站已通过 GitHub Pages 部署上线。
-**在线访问地址：** [https://wolaok11-cell.github.io/WANG-JUNYANG-personal-website/](https://你的用户名.github.io/你的仓库名/)
+**在线访问地址：** [https://wolaok11-cell.github.io/WANG-JUNYANG-personal-website/](https://wolaok11-cell.github.io/WANG-JUNYANG-personal-website/)
 
 ## 📫 联系方式
 
