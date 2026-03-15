@@ -80,14 +80,23 @@
 </head>
 <body class="antialiased">
 
-    <nav class="fixed top-0 w-full z-50 bg-[#000000]/80 backdrop-blur-xl border-b border-white/10">
+    <!-- Page Transition Overlay -->
+    <div id="page-transition" class="fixed inset-0 z-[100] bg-[#dbff00] transform translate-y-full flex flex-col items-center justify-center overflow-hidden pointer-events-none">
+        <div class="relative font-display font-black italic text-4xl md:text-8xl uppercase tracking-tighter mb-4">
+            <span class="text-black/20 block">WANG</span>
+            <span id="transition-text-fill" class="absolute top-0 left-0 text-black overflow-hidden" style="width: 0%; white-space: nowrap;">WANG</span>
+        </div>
+    </div>
+
+    <nav id="top-nav" class="fixed top-0 w-full z-50 bg-[#000000]/80 backdrop-blur-xl border-b border-white/10">
         <div class="max-w-[1400px] mx-auto px-6 py-5 flex justify-between items-center">
-            <span class="text-white font-display font-black italic tracking-widest text-xl uppercase">WANG<span class="text-[#dbff00]">.</span></span>
+            <a href="#top-nav" id="logo-link" class="text-white font-display font-black italic tracking-widest text-xl uppercase nav-link">WANG<span class="text-[#dbff00]">.</span></a>
             <div class="flex items-center space-x-6 text-xs md:text-sm font-bold tracking-wider uppercase">
-                <a href="#vision" class="hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navVision">Vision</a>
-                <a href="#research" class="hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navResearch">Research</a>
-                <a href="#gallery" class="hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navGallery">Gallery</a>
-                <button id="lang-toggle" class="px-3 py-1 md:px-4 md:py-2 bg-transparent border-2 border-[#dbff00] text-[#dbff00] font-black italic hover:bg-[#dbff00] hover:text-black transition-all">
+                <a href="#vision" class="nav-link hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navVision">Vision</a>
+                <a href="#research" class="nav-link hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navResearch">Research</a>
+                <a href="#gallery" class="nav-link hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navGallery">Gallery</a>
+                <a href="#about" class="nav-link hidden md:block hover:text-[#dbff00] transition-colors" data-i18n="navAbout">关于我</a>
+                <button id="lang-toggle" class="nav-link px-3 py-1 md:px-4 md:py-2 bg-transparent border-2 border-[#dbff00] text-[#dbff00] font-black italic hover:bg-[#dbff00] hover:text-black transition-all">
                     EN / ZH
                 </button>
             </div>
@@ -106,11 +115,11 @@
         </div>
 
         <div class="relative z-30 w-full max-w-[1400px] mx-auto px-6 pointer-events-none mt-20">
-            <h1 class="font-display font-black italic text-[60px] md:text-[140px] lg:text-[180px] leading-[0.85] tracking-tighter text-white uppercase drop-shadow-2xl">
+            <h1 class="hero-anim font-display font-black italic text-[60px] md:text-[140px] lg:text-[180px] leading-[0.85] tracking-tighter text-white uppercase drop-shadow-2xl">
                 WANG<br>
                 <span class="text-[#dbff00]">JUNYANG</span>
             </h1>
-            <p class="mt-8 md:mt-12 text-sm md:text-2xl font-medium text-gray-300 max-w-xl border-l-4 border-[#dbff00] pl-6 tracking-wide" data-i18n="heroSub">
+            <p class="hero-anim mt-8 md:mt-12 text-sm md:text-2xl font-medium text-gray-300 max-w-xl border-l-4 border-[#dbff00] pl-6 tracking-wide" data-i18n="heroSub">
                 Focusing on next-generation energy storage, high-entropy alloys, and interfacial engineering.
             </p>
         </div>
@@ -373,7 +382,7 @@
                 我是王君阳，目前作为硕士研究生就读于<strong class="text-[#dbff00]">上海理工大学</strong>，本科毕业于沈阳航空航天大学。我专注于材料成型控制、计算材料学以及前沿非晶态物理领域。
             </p>
             <div class="flex items-center space-x-6 pt-4 mt-6 border-t border-white/20">
-                <a href="mailto:383424253@qq.com" class="text-gray-400 hover:text-[#dbff00] transition-colors"><i class="fa-solid fa-envelope mr-3 text-[#dbff00]"></i>383424253@qq.com</a>
+                <a href="mailto:wolaok11@gmail.com" class="text-gray-400 hover:text-[#dbff00] transition-colors"><i class="fa-solid fa-envelope mr-3 text-[#dbff00]"></i>wolaok11@gmail.com</a>
                 <span class="text-gray-400"><i class="fa-solid fa-location-dot mr-3 text-[#dbff00]"></i>Shanghai, China</span>
             </div>
         </div>
@@ -394,7 +403,7 @@
         // ----------------------------------------
         const translations = {
             en: {
-                navVision: "Vision", navResearch: "Research", navGallery: "Gallery",
+                navVision: "Vision", navResearch: "Research", navGallery: "Gallery", navAbout: "About me",
                 heroSub: "Master's student at USST. Focusing on next-gen energy storage, high-entropy alloys, and interfacial engineering.",
                 heroScroll: "Scroll",
                 statPatents: "Patents & Projects", statAwards: "Academic Awards", statAuthor: "Author EI Journal",
@@ -434,7 +443,7 @@
                 a1: "I am Wang Junyang, currently pursuing my Master's degree at <strong class='text-[#dbff00]'>University of Shanghai for Science and Technology (USST)</strong>. I specialize in material forming, computational materials science, and amorphous physics."
             },
             zh: {
-                navVision: "科研愿景", navResearch: "科研领域", navGallery: "生活图集",
+                navVision: "科研愿景", navResearch: "科研领域", navGallery: "生活图集", navAbout: "关于我",
                 heroSub: "上海理工大学研究生。专注下一代储能材料、高熵合金与界面工程微观机理探索。",
                 heroScroll: "向下滑动",
                 statPatents: "大创与专利", statAwards: "国家及省市级奖项", statAuthor: "第一作者 EI 期刊",
@@ -478,13 +487,83 @@
         let currentLang = 'zh';
         const langToggleBtn = document.getElementById('lang-toggle');
         
-        langToggleBtn.addEventListener('click', () => {
-            currentLang = currentLang === 'en' ? 'zh' : 'en';
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[currentLang][key]) {
-                    el.innerHTML = translations[currentLang][key];
+        // Navigation Transition Logic
+        function triggerPageTransition(callback) {
+            const tl = gsap.timeline();
+            const transitionEl = document.getElementById('page-transition');
+            
+            // Un-hide
+            transitionEl.style.pointerEvents = "auto";
+            
+            // 1. Slide up the vibrant yellow cover
+            tl.to(transitionEl, {
+                y: 0,
+                duration: 0.6,
+                ease: "power3.inOut"
+            })
+            // 2. Animate the text fill like a progress bar
+            .to("#transition-text-fill", {
+                width: "100%",
+                duration: 0.8, 
+                ease: "power2.inOut"
+            })
+            .call(() => {
+                // Execute the actual action (scrolling or changing lang) while covered
+                if(callback) callback();
+            })
+            // Wait slightly so the action applies
+            .to("#transition-text", {
+                opacity: 1, // ensure it ends solid
+                duration: 0.1
+            })
+            // 3. Slide the curtain up to reveal page again
+            .to(transitionEl, {
+                yPercent: -100,
+                duration: 0.6,
+                ease: "power3.inOut",
+                onComplete: () => {
+                    // Reset properties for next time
+                    gsap.set(transitionEl, { yPercent: 0, y: "100%", pointerEvents: "none" });
+                    gsap.set("#transition-text-fill", { width: "0%" }); // Reset text fill
                 }
+            }, "+=0.1");
+        }
+
+        // Intercept Navigation Links
+        document.querySelectorAll('a.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                let targetOffset = 0; // Default to top
+
+                if (targetId && targetId.startsWith('#')) {
+                    const targetSection = document.querySelector(targetId);
+                    if (targetSection) {
+                        targetOffset = targetSection.offsetTop;
+                    }
+                }
+                
+                triggerPageTransition(() => {
+                    // Quick scroll without smooth scroll so it happens instantly behind curtain
+                    window.scrollTo({
+                        top: targetOffset,
+                        behavior: 'auto' 
+                    });
+                    // Re-trigger scroll animations manually by refreshing ScrollTrigger
+                    ScrollTrigger.refresh();
+                });
+            });
+        });
+
+        langToggleBtn.addEventListener('click', () => {
+            triggerPageTransition(() => {
+                currentLang = currentLang === 'en' ? 'zh' : 'en';
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (translations[currentLang][key]) {
+                        el.innerHTML = translations[currentLang][key];
+                    }
+                });
             });
         });
         
@@ -527,6 +606,7 @@
         let isHovering = false;
         let hoverRadius = 0;
         const maxHoverRadius = 250;
+        let time = 0; // For fluid animation
 
         function initImages() {
             realImg.src = realImageSrc;
@@ -535,19 +615,39 @@
             realImg.onload = virtualImg.onload = () => {
                 imagesLoaded++;
                 if (imagesLoaded === 2) {
-                    loader.style.display = 'none';
+                    // GSAP Preloader Animation
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(loader, {
+                            yPercent: -100,
+                            duration: 1.2,
+                            ease: "power4.inOut",
+                            onComplete: () => { loader.style.display = 'none'; }
+                        });
+                        
+                        // Hero Content Reveal
+                        gsap.from(".hero-anim", {
+                            y: 50,
+                            opacity: 0,
+                            duration: 1.2,
+                            stagger: 0.15,
+                            ease: "power3.out",
+                            delay: 0.3
+                        });
+                    } else {
+                        loader.style.display = 'none';
+                    }
                     currentImage = realImg;
                     targetImage = realImg;
                     bgImgElement.src = virtualImg.src;
                     startCanvasEngine();
                     
-                    // ★ 极快频率 2000 毫秒(2秒) 瀑布流切换
+                    // ★ 较短间隔 1500 毫秒(1.5秒) 瀑布流切换
                     setInterval(() => {
                         if (!isTransitioning) {
                             targetImage = (currentImage === realImg) ? virtualImg : realImg;
                             triggerWaterfall();
                         }
-                    }, 2000); 
+                    }, 1500); 
                 }
             };
         }
@@ -589,7 +689,7 @@
             isTransitioning = true;
             for (let i = 0; i < columns; i++) {
                 transDrops[i] = -Math.random() * 600 - 50; 
-                transSpeeds[i] = 4 + Math.random() * 5; 
+                transSpeeds[i] = 2 + Math.random() * 2.5; // 大瀑布雨速度变慢 (减小数值)
             }
         }
 
@@ -666,8 +766,8 @@
                 for(let j = 0; j < 8; j++) {
                     let cY = contY - j * fontSize;
                     if(cY < 0 || cY > canvas.height) continue;
-                    let op = (1 - j / 8) * 0.15;
-                    ctx.fillStyle = `rgba(219, 255, 0, ${op})`;
+                    let op = (1 - j / 8) * 0.25; // 添加 0.25 系数来限制最高透明度
+                    ctx.fillStyle = `rgba(219, 255, 0, ${op})`; // 改回亮绿色
                     ctx.fillText(chars[Math.floor(Math.random() * chars.length)], x + fontSize/2, cY);
                 }
                 
@@ -683,19 +783,58 @@
                 bgImgElement.src = (currentImage === realImg) ? virtualImg.src : realImg.src;
             }
 
-            currentMouseX += (targetMouseX - currentMouseX) * 0.15;
-            currentMouseY += (targetMouseY - currentMouseY) * 0.15;
-            hoverRadius += ((isHovering ? maxHoverRadius : 0) - hoverRadius) * 0.15;
+            // INCREASED INTERPOLATION SPEED for faster tracking
+            currentMouseX += (targetMouseX - currentMouseX) * 0.35;
+            currentMouseY += (targetMouseY - currentMouseY) * 0.35;
+            // INSTANT REVEAL: Increase the radius growth speed so it opens up immediately
+            hoverRadius += ((isHovering ? maxHoverRadius : 0) - hoverRadius) * 0.7;
+
+            time += 0.04; // Smooth, slow flow
 
             if (hoverRadius > 1) {
                 ctx.globalCompositeOperation = 'destination-out';
-                let gradient = ctx.createRadialGradient(currentMouseX, currentMouseY, 0, currentMouseX, currentMouseY, hoverRadius);
-                gradient.addColorStop(0, 'rgba(0,0,0,1)');      
-                gradient.addColorStop(0.7, 'rgba(0,0,0,0.8)');  
-                gradient.addColorStop(1, 'rgba(0,0,0,0)');      
-                ctx.fillStyle = gradient;
+                
+                // Draw dynamic fluid shape
                 ctx.beginPath();
-                ctx.arc(currentMouseX, currentMouseY, hoverRadius, 0, Math.PI * 2);
+                const points = 60; // Higher resolution for smoother curves
+                for (let i = 0; i <= points; i++) {
+                    // Go up to 'points' to close the loop properly
+                    const angle = (i / points) * Math.PI * 2;
+                    // Gentler, wider sine waves for a smoother blob
+                    const wobble = Math.sin(angle * 3 + time) * 20 
+                                 + Math.cos(angle * 2 - time * 0.8) * 15;
+                    const r = hoverRadius + wobble;
+                    
+                    const pX = currentMouseX + Math.cos(angle) * r;
+                    const pY = currentMouseY + Math.sin(angle) * r;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(pX, pY);
+                    } else {
+                        // Create continuous smooth curves
+                        const prevAngle = ((i - 1) / points) * Math.PI * 2;
+                        const prevWobble = Math.sin(prevAngle * 3 + time) * 20 
+                                         + Math.cos(prevAngle * 2 - time * 0.8) * 15;
+                        const prevR = hoverRadius + prevWobble;
+                        const prevPX = currentMouseX + Math.cos(prevAngle) * prevR;
+                        const prevPY = currentMouseY + Math.sin(prevAngle) * prevR;
+                        
+                        // Control point in between
+                        const cpX = (prevPX + pX) / 2;
+                        const cpY = (prevPY + pY) / 2;
+                        
+                        ctx.quadraticCurveTo(prevPX, prevPY, cpX, cpY);
+                    }
+                }
+                ctx.closePath();
+                
+                // Widen the radial gradient for an ultra-smooth fade
+                let gradient = ctx.createRadialGradient(currentMouseX, currentMouseY, 0, currentMouseX, currentMouseY, hoverRadius + 45);
+                gradient.addColorStop(0, 'rgba(0,0,0,1)');      
+                gradient.addColorStop(0.5, 'rgba(0,0,0,0.6)');  
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');      
+                
+                ctx.fillStyle = gradient;
                 ctx.fill();
                 ctx.globalCompositeOperation = 'source-over';
             }
@@ -710,6 +849,44 @@
         }
 
         initImages();
+    </script>
+
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Sections headers slide up
+        gsap.utils.toArray('section h2, section h3').forEach((header) => {
+            gsap.from(header, {
+                scrollTrigger: {
+                    trigger: header,
+                    start: "top 85%",
+                    toggleActions: "play none none reverse"
+                },
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                ease: "power3.out"
+            });
+        });
+
+        // Cards fade & slide in
+        const animCards = document.querySelectorAll('.lando-card, .accordion-item, .space-y-6 > div, #experience > div > .flex');
+        gsap.utils.toArray(animCards).forEach((el) => {
+            gsap.from(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 90%",
+                    toggleActions: "play none none reverse"
+                },
+                y: 40,
+                opacity: 0,
+                duration: 0.8,
+                ease: "power2.out"
+            });
+        });
     </script>
 </body>
 </html>
