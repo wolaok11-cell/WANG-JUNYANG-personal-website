@@ -109,9 +109,27 @@
             <img id="bg-img" src="./virtual.jpg" class="absolute inset-0 w-full h-full object-cover z-0" alt="Background Persona">
             <canvas id="hero-canvas" class="absolute inset-0 w-full h-full z-10"></canvas>
             <div class="absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/80 md:via-[#000000]/30 to-transparent z-20 pointer-events-none"></div>
-            <div id="loader" class="absolute inset-0 flex items-center justify-center bg-[#000000] z-30 text-[#dbff00] font-mono text-sm tracking-widest">
-                SYS_LOADING...
+        </div>
+
+        <!-- NEW FULLSCREEN LOADER -->
+        <div id="loader" class="fixed inset-0 z-[1000] bg-[#000000] flex flex-col justify-between p-8 md:p-12 font-mono overflow-hidden">
+            <div class="absolute inset-0 pointer-events-none opacity-10" style="background-image: linear-gradient(rgba(219, 255, 0, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(219, 255, 0, 0.5) 1px, transparent 1px); background-size: 40px 40px; background-position: center center;"></div>
+            
+            <div class="text-[#dbff00] text-xs md:text-sm max-w-lg relative z-10">
+                <div id="boot-text" class="flex flex-col space-y-1 mb-2 opacity-80"></div>
+                <div class="flex items-center">
+                    <span id="boot-cursor" class="w-2.5 h-4 bg-[#dbff00] inline-block shadow-[0_0_8px_#dbff00]"></span>
+                </div>
             </div>
+            
+            <div class="absolute bottom-8 right-8 md:bottom-12 md:right-12 text-right z-10 flex flex-col items-end">
+                <div class="text-[#dbff00] font-display font-black italic text-7xl md:text-9xl leading-none tracking-tighter mix-blend-screen" style="text-shadow: 0 0 30px rgba(219,255,0,0.4);">
+                    <span id="loader-percent">0</span><span class="text-3xl md:text-5xl ml-1">%</span>
+                </div>
+                <div class="text-white/40 text-[10px] md:text-xs tracking-[0.4em] uppercase mt-2 w-max">Neural Interface Syncing</div>
+            </div>
+            
+            <div id="loader-bar" class="absolute bottom-0 left-0 h-1 bg-[#dbff00] shadow-[0_0_15px_#dbff00] w-0 z-20"></div>
         </div>
 
         <div class="relative z-30 w-full max-w-[1400px] mx-auto px-6 pointer-events-none mt-20">
@@ -572,12 +590,115 @@
         });
 
         // ----------------------------------------
-        // 2. 聚光灯探照跟随 + 2秒矩阵瀑布流
+        // 2. 开屏动画 + 聚光灯探照跟随 + 矩阵瀑布流
         // ----------------------------------------
+        const loader = document.getElementById('loader');
+        const loaderPercentEl = document.getElementById('loader-percent');
+        const loaderBarEl = document.getElementById('loader-bar');
+        const bootTextEl = document.getElementById('boot-text');
+        const bootCursor = document.getElementById('boot-cursor');
+        
+        const bootLines = [
+            "WANG.OS [Version 2.0.24]",
+            "(c) WANG JUNYANG Corporation. All rights reserved.",
+            "",
+            "> BOOT_SEQUENCE SECURE",
+            "VERIFYING ROOT KERNEL ... [OK]",
+            "INIT SYNERGISTIC_LINK_01 ... [OK]",
+            "INIT SYNERGISTIC_LINK_02 ... [OK]",
+            "MOUNTING ATOMIC_STRUCTURE.DAT ... [OK]",
+            "SCANNING LATTICE CONFIGURATIONS ...",
+            "  > FCC PHASE DETECTED ... [OK]",
+            "  > BCC PHASE DETECTED ... [OK]",
+            "COMPILING HEA_DATASETS ... [OK]",
+            "LOADING THERMODYNAMIC PARAMS ... [OK]",
+            "CALCULATING GIBBS FREE ENERGY ... DONE",
+            "DECRYPTING ZINC_ION_MATRIX ... [OK]",
+            "CHECKING HYDROGEL ELECTROLYTE STABILITY ... [OK]",
+            "SUPPRESSING DENDRITE FORMATION ... [ACTIVE]",
+            "ESTABLISHING NEURAL_CONNECTION ... [OK]",
+            "SYNCING BRAIN-MACHINE INTERFACE API ... [OK]",
+            "OVERRIDING PROTOCOLS ... [OK]",
+            "WAITING FOR USER INPUT...",
+            "SYSTEM OVERRIDE SUCCESSFUL."
+        ];
+
+        let preloaderProgress = 0;
+        let preloaderLineIndex = 0;
+        let loaderReadyToHide = false;
+
+        function updatePreloader() {
+            if (preloaderProgress < 100) {
+                preloaderProgress += Math.random() * 1.5 + 0.3; // Slower speed to make the text readable and the load longer
+                if (preloaderProgress > 100) preloaderProgress = 100;
+                if (loaderPercentEl) loaderPercentEl.textContent = Math.floor(preloaderProgress);
+                if (loaderBarEl) loaderBarEl.style.width = preloaderProgress + "%";
+                
+                const targetLineIndex = Math.floor((preloaderProgress / 100) * bootLines.length);
+                while (preloaderLineIndex < targetLineIndex && preloaderLineIndex < bootLines.length) {
+                    if (bootTextEl) {
+                        const div = document.createElement('div');
+                        div.textContent = bootLines[preloaderLineIndex++];
+                        bootTextEl.appendChild(div);
+                    } else {
+                        preloaderLineIndex++;
+                    }
+                }
+                
+                requestAnimationFrame(updatePreloader);
+            } else {
+                loaderReadyToHide = true;
+                checkAndHideLoader();
+            }
+        }
+        setTimeout(updatePreloader, 100);
+
+        function checkAndHideLoader() {
+            if (loaderReadyToHide && imagesLoaded === 2) {
+                if (typeof gsap !== 'undefined') {
+                    hideLoaderAnim();
+                } else {
+                    let waitGsap = setInterval(() => {
+                        if (typeof gsap !== 'undefined') {
+                            clearInterval(waitGsap);
+                            hideLoaderAnim();
+                        }
+                    }, 100);
+                    setTimeout(() => {
+                        clearInterval(waitGsap);
+                        if(loader) loader.style.display = 'none';
+                    }, 3000);
+                }
+            }
+        }
+
+        function hideLoaderAnim() {
+            if(bootCursor) bootCursor.classList.remove('animate-pulse');
+            const tl = gsap.timeline();
+            if (bootCursor) {
+                tl.to(bootCursor, { opacity: 0, duration: 0.1, yoyo: true, repeat: 7 });
+            }
+            
+            tl.to(loader, {
+                yPercent: -100,
+                duration: 1.2,
+                ease: "power4.inOut",
+                onComplete: () => { if(loader) loader.style.display = 'none'; }
+            });
+              
+            gsap.from(".hero-anim", {
+                y: 50,
+                opacity: 0,
+                duration: 1.2,
+                stagger: 0.15,
+                ease: "power3.out",
+                delay: 0.1 
+            }, "-=0.6"); 
+        }
+
         const container = document.getElementById('hero-container');
         const canvas = document.getElementById('hero-canvas');
         const ctx = canvas.getContext('2d');
-        const loader = document.getElementById('loader');
         const bgImgElement = document.getElementById('bg-img'); 
 
         const realImageSrc = './real.jpg';
@@ -615,27 +736,6 @@
             realImg.onload = virtualImg.onload = () => {
                 imagesLoaded++;
                 if (imagesLoaded === 2) {
-                    // GSAP Preloader Animation
-                    if (typeof gsap !== 'undefined') {
-                        gsap.to(loader, {
-                            yPercent: -100,
-                            duration: 1.2,
-                            ease: "power4.inOut",
-                            onComplete: () => { loader.style.display = 'none'; }
-                        });
-                        
-                        // Hero Content Reveal
-                        gsap.from(".hero-anim", {
-                            y: 50,
-                            opacity: 0,
-                            duration: 1.2,
-                            stagger: 0.15,
-                            ease: "power3.out",
-                            delay: 0.3
-                        });
-                    } else {
-                        loader.style.display = 'none';
-                    }
                     currentImage = realImg;
                     targetImage = realImg;
                     bgImgElement.src = virtualImg.src;
@@ -648,6 +748,8 @@
                             triggerWaterfall();
                         }
                     }, 1500); 
+                    
+                    checkAndHideLoader();
                 }
             };
         }
